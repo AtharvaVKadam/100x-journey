@@ -121,9 +121,10 @@ app.put("/todo",auth,function(req,res){
         }
 
     } 
-    
+
     else{
         res.status(404).json({ msg: "User not found" });
     }
 });
-    
+
+app.listen(3000);
