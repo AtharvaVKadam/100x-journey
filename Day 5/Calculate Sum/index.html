@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculate Sum</title>
+</head>
+<body>
+    <script>
+        async function CalculateSum() {
+            
+            const val1 = document.getElementById("firstnum").value;
+            const val2 = document.getElementById("secondnum").value;
+
+            const response = await fetch("http://localhost:3001/sum?a=" + val1 + "&b=" + val2);
+
+            const ans = await response.text();
+
+            document.getElementById("finalAnswer").innerHTML = "Your answer is: " + ans;
+        }
+    </script>
+
+    <input id="firstnum" type="number" placeholder="First Number"></input>
+    <br></br>
+    <input id="secondnum" type="number" placeholder="Second Number"></input>
+    <br></br>
+    <button onclick="CalculateSum()">Calculate Sum</button>
+    <br></br>
+    <p id="finalAnswer"></p>
+
+</html>
