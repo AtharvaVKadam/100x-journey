@@ -5,7 +5,7 @@ function App(){
 
     return (
         <div>
-            <Button const count = {count} setCount = {setCount}></Button>
+            <Button count = {count} setCount = {setCount}></Button>
         </div>
     )
 }
@@ -19,4 +19,4 @@ function Button(props){
     )
 }
 
-export default App;
+export default App
