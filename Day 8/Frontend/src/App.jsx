@@ -1,10 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CreateTodo } from './components/CreateTodo'
 import { Todos } from './components/Todos'
-import { useEffect } from 'react';
 
 function App() {
-
   const [todos, setTodos] = useState([]);
 
   useEffect(() => {
@@ -16,10 +14,17 @@ function App() {
   }, [])
   
   return (
-    <>
-     <CreateTodo />
-     <Todos todos={todos} />
-    </>
+    <div style={{ 
+        backgroundColor: "#f0f2f5",
+        minHeight: "100vh",        
+        padding: "20px" 
+    }}>
+       <h1 style={{ textAlign: "center", fontFamily: "Arial, sans-serif", color: "#333" }}>
+         My Todo App
+       </h1>
+       <CreateTodo />
+       <Todos todos={todos} />
+    </div>
   )
 }
 
