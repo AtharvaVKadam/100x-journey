@@ -12,7 +12,7 @@ function App(){
             })
     },[])
     return <div>
-        {todos.map(todo => < Todo key = {todo.id} title = {todo.title} description = {todo.description}/>)}
+        {todos.map(todo => < Todo key = {todo._id} title = {todo.title} description = {todo.description}/>)}
         </div>
 }
 
