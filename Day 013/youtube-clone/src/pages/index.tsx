@@ -1,78 +1,67 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+import { VideoCard } from "../components/VideoCard";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const VIDEOS = [
+  {
+    id: 1,
+    title: "Jilian Macclayer - A Day in the Life of a Software Engineer",
+    thumbnail: "https://i.ytimg.com/vi/K4TOrB7at0Y/hqdefault.jpg", // Real YT Thumb
+    duration: "12:45",
+    channelName: "Jilian Macclayer",
+    channelAvatar: "https://yt3.googleusercontent.com/ytc/AIdro_k7r-w9k2L9C_6o8y-E7r3j3i5l0l4h-j4k=s176-c-k-c0x00ffffff-no-rj", // Real Avatar
+    views: "1.4M views",
+    uploadedAt: "1 year ago"
+  },
+  {
+    id: 2,
+    title: "CodeWithHarry - React Tutorial for Beginners", 
+    thumbnail: "https://i.ytimg.com/vi/bMknfKXIFA8/hqdefault.jpg", 
+    duration: "15:20",
+    channelName: "CodeWithHarry",
+    channelAvatar: "https://yt3.googleusercontent.com/ytc/AIdro_nO3F7D_4Wf5F_6G_8H8I9J0K_L_M_N_O_P=s176-c-k-c0x00ffffff-no-rj", 
+    views: "500K views",
+    uploadedAt: "2 months ago"
+  },
+  {
+    id: 3,
+    title: "Fireship - 100 Seconds of Code",
+    thumbnail: "gw-YX7XOPmI-HD.jpg", 
+    duration: "2:10",
+    channelName: "Fireship",
+    channelAvatar: "https://yt3.googleusercontent.com/C25u3DcSguL-wd3GaO110Q1fyO5ClTraTjtF72kJhZtpQwuAv3zLmb7K-ZLJecQQJBVvP1McmA=s160-c-k-c0x00ffffff-no-rj", 
+    views: "2M views",
+    uploadedAt: "3 days ago"
+  },
+  {
+     id: 4,
+     title: "Harkirat Singh - 100xDevs Launch Event",
+     thumbnail: "gw-YX7XOPmI-HD.jpg",
+     duration: "45:00",
+     channelName: "Harkirat Singh",
+     channelAvatar: "https://yt3.googleusercontent.com/C25u3DcSguL-wd3GaO110Q1fyO5ClTraTjtF72kJhZtpQwuAv3zLmb7K-ZLJecQQJBVvP1McmA=s160-c-k-c0x00ffffff-no-rj",
+     views: "100K views",
+     uploadedAt: "1 month ago"
+  }
+];
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export default function Home() {
+function App() {
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black`}
-    >
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the index.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs/pages/getting-started?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="bg-black min-h-screen p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {VIDEOS.map((video) => (
+          <VideoCard 
+            key={video.id}
+            title={video.title}
+            thumbnail={video.thumbnail}
+            duration={video.duration}
+            channelName={video.channelName}
+            channelAvatar={video.channelAvatar}
+            views={video.views}
+            uploadedAt={video.uploadedAt}
+          />
+        ))}
+      </div>
     </div>
   );
 }
+
+export default App;
