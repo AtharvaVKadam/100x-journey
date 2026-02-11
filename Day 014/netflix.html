@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Clone - Standalone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style type="text/css">
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hero-gradient { background: linear-gradient(to top, #111 10%, transparent 100%); }
+    </style>
+</head>
+<body class="bg-[#111] text-white font-sans">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const TRENDING = [
+            "https://image.tmdb.org/t/p/w500/8cdWjvZQUmOZpmB9YMDm97b3pZk.jpg",
+            "https://image.tmdb.org/t/p/w500/mBaXZ95O2Oxue0g6S2vkyqyv3oA.jpg",
+            "https://image.tmdb.org/t/p/w500/hu40UxpSrEKVsf6vlKVzH6dnvqr.jpg",
+            "https://image.tmdb.org/t/p/w500/6MKs3vI7uMv9pS7Yv88Q9990S0A.jpg",
+            "https://image.tmdb.org/t/p/w500/8Gxv8S7ndLq7GrcfS069m6FqLgn.jpg",
+            "https://image.tmdb.org/t/p/w500/v9pi9VvS79v7S7H7v9pi9VvS79v.jpg"
+        ];
+
+        const Navbar = () => {
+            const [isScrolled, setIsScrolled] = React.useState(false);
+            window.onscroll = () => setIsScrolled(window.pageYOffset === 0 ? false : true);
+
+            return (
+                <div className={`fixed top-0 w-full z-50 transition-all duration-500 p-4 px-12 flex items-center justify-between ${isScrolled ? 'bg-black' : 'bg-transparent'}`}>
+                    <div className="flex items-center gap-10">
+                        <h1 className="text-red-600 text-3xl font-bold uppercase tracking-tighter">Netflix</h1>
+                        <div className="hidden lg:flex gap-5 text-sm">
+                            <span className="cursor-pointer hover:text-gray-300">Home</span>
+                            <span className="cursor-pointer hover:text-gray-300">TV Shows</span>
+                            <span className="cursor-pointer hover:text-gray-300">Movies</span>
+                        </div>
+                    </div>
+                    <div className="flex gap-5 items-center">🔍 🔔 <div className="w-8 h-8 bg-blue-600 rounded"></div></div>
+                </div>
+            );
+        };
+
+        const Row = ({ title, images }) => (
+            <div className="pl-12 mt-10">
+                <h2 className="text-xl font-bold mb-4">{title}</h2>
+                <div className="flex gap-2 overflow-x-auto no-scrollbar pr-12">
+                    {images.map((img, i) => (
+                        <img 
+                            key={i} 
+                            src={img} 
+                            className="w-56 h-32 object-cover rounded hover:scale-110 transition-transform duration-300 cursor-pointer shrink-0"
+                        />
+                    ))}
+                </div>
+            </div>
+        );
+
+        function App() {
+            return (
+                <div className="relative">
+                    <Navbar />
+                    
+                    {/* Hero Section */}
+                    <div className="relative h-[80vh] w-full">
+                        <img 
+                            src="https://image.tmdb.org/t/p/original/6MKs3vI7uMv9pS7Yv88Q9990S0A.jpg" 
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 hero-gradient flex flex-col justify-center pl-12">
+                            <h1 className="text-6xl font-extrabold mb-4">Interstellar</h1>
+                            <p className="max-w-xl text-lg mb-6 text-gray-200">
+                                A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.
+                            </p>
+                            <div className="flex gap-4">
+                                <button className="bg-white text-black px-8 py-2 rounded font-bold hover:bg-opacity-80">▶ Play</button>
+                                <button className="bg-gray-500 bg-opacity-50 text-white px-8 py-2 rounded font-bold hover:bg-opacity-40">ℹ More Info</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="relative -mt-32 pb-20">
+                        <Row title="Trending Now" images={TRENDING} />
+                        <Row title="Popular on Netflix" images={TRENDING} />
+                        <Row title="Action Movies" images={TRENDING} />
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
