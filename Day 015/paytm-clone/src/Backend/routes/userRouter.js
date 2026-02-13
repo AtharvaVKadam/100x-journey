@@ -1,10 +1,10 @@
 const express = require("express");
 const z = require("zod");
 const jwt = require("jsonwebtoken");
-const { User } = require("../../Database/db.js"); 
+const { User , Account } = require("../../Database/db.js"); 
 const { JWT_SECRET } = require("../config");
 const router = express.Router();
-const { authmiddleware } = require("../middleware.js")
+const { authMiddleware } = require("../middleware.js")
 
 router.post("/signup", async function(req,res,next){
 
@@ -40,6 +40,11 @@ router.post("/signup", async function(req,res,next){
         lastName: req.body.lastName, });
 
     const userId = user._id;
+
+    await Account.create({
+        userId : userId,
+        balance : 1 + Math.random() * 10000
+    });
 
     const token = jwt.sign({
         userId
@@ -95,7 +100,7 @@ const updateBody = z.object({
     lastName: z.string().min(1,"LastName is required")
 });
 
-router.put("/", authmiddleware, async (req, res ) => {
+router.put("/", authMiddleware, async (req, res ) => {
     const response = updateBody.safeParse(req.body);
 
     if(!response.success){
