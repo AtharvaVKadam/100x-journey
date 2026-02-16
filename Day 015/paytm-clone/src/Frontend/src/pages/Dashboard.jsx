@@ -34,7 +34,7 @@ export const Dashboard = () => {
         </div>
 
         <div className="m-8">
-            <div className="font-bold text-lg">Your balance: ₹{balance}</div>
+            <div className="font-bold text-lg">Your balance: ₹{parseFloat(balance.toFixed(2))}</div>
             
             <div className="font-bold mt-6 text-lg">Users</div>
             <div className="my-2">
