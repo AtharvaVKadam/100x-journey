@@ -1,61 +1,65 @@
-import { useEffect, useState } from "react"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
+import { Appbar } from "../pages/Appbar";
+import { BalanceCard } from "../pages/BalanceCard" 
+import { Users } from "../pages/Users"
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export const Dashboard = () => {
-    const [users, setUsers] = useState([]);
-    const [filter, setFilter] = useState("");
     const [balance, setBalance] = useState(0);
-    const navigate = useNavigate();
 
     useEffect(() => {
-        // Fetch Balance
+        const token = localStorage.getItem("token");
+
         axios.get("http://localhost:3000/api/v1/account/balance", {
-            headers: { Authorization: "Bearer " + localStorage.getItem("token") }
-        }).then(response => {
-            setBalance(response.data.balance);
+            headers: {
+                Authorization: "Bearer " + token
+            }
         })
-        
-        // Fetch Users
-        axios.get("http://localhost:3000/api/v1/user/bulk?filter=" + filter, {
-            headers: { Authorization: "Bearer " + localStorage.getItem("token") }
-        }).then(response => {
-            setUsers(response.data.user)
-        })
-    }, [filter])
+            .then(response => {
+                setBalance(response.data.balance);
+            })
+            .catch(error => {
+                console.error("Error fetching balance:", error);
+            });
+        }, []);
 
-    return <div className="p-8">
-        <div className="shadow h-14 flex justify-between items-center px-4">
-            <div className="font-bold text-xl">Paytm App</div>
-            <div className="flex items-center">
-                <div className="mr-4">Hello, User</div>
-                <div className="rounded-full h-10 w-10 bg-slate-200 flex justify-center items-center text-xl">U</div>
+    return (
+        <div className="min-h-screen bg-gray-50 flex">
+            <div className="w-64 bg-white border-r border-gray-200 hidden md:block p-6">
+                <div className="flex items-center gap-2 mb-10 text-blue-700 font-bold text-2xl">
+                    <div className="w-8 h-8 bg-blue-600 rounded-lg"></div>
+                    PayTM App
+                </div>
+                <nav className="space-y-2">
+                    <SidebarItem icon="🏠" text="Dashboard" active />
+                    <SidebarItem icon="💸" text="Transactions" />
+                    <SidebarItem icon="👤" text="Profile" />
+                    <SidebarItem icon="⚙️" text="Settings" />
+                </nav>
             </div>
-        </div>
 
-        <div className="m-8">
-            <div className="font-bold text-lg">Your balance: ₹{parseFloat(balance.toFixed(2))}</div>
-            
-            <div className="font-bold mt-6 text-lg">Users</div>
-            <div className="my-2">
-                <input onChange={(e) => setFilter(e.target.value)} type="text" placeholder="Search users..." className="w-full px-2 py-1 border rounded border-slate-200"></input>
-            </div>
-            
-            <div>
-                {users.map(user => (
-                    <div key={user._id} className="flex justify-between items-center p-2 border-b">
-                        <div className="flex items-center">
-                            <div className="rounded-full h-10 w-10 bg-slate-200 flex justify-center items-center text-xl mr-2">
-                                {user.firstName[0]}
-                            </div>
-                            <div className="font-semibold">{user.firstName} {user.lastName}</div>
-                        </div>
-                        <button onClick={() => {
-                            navigate("/send?id=" + user._id + "&name=" + user.firstName);
-                        }} className="bg-black text-white px-4 py-2 rounded-lg hover:bg-slate-900">Send Money</button>
+            <div className="flex-1">
+                <Appbar />
+                <div className="p-8 max-w-6xl mx-auto space-y-8">
+                    
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">Good Morning, User! 👋</h1>
+                        <p className="text-gray-500 mt-1">Here is what's happening with your money today.</p>
                     </div>
-                ))}
+
+                    <BalanceCard value={balance} />
+                    <Users />
+                </div>
             </div>
         </div>
-    </div>
+    )
+}
+
+function SidebarItem({ icon, text, active }) {
+    return (
+        <div className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${active ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"}`}>
+            <span>{icon}</span>
+            <span className="font-medium">{text}</span>
+        </div>
+    )
 }
