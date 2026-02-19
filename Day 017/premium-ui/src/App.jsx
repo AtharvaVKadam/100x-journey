@@ -1,9 +1,27 @@
 import { useState } from "react";
-import { Sparkles, Zap, Shield, CreditCard, Home, Check } from "lucide-react";
+import { Sparkles, Zap, Shield, CreditCard, Home, Check, Code2, Clock } from "lucide-react";
 
 export default function App() {
-
   const [activePage, setActivePage] = useState("home");
+  const [showToast, setShowToast] = useState(false);
+  
+  const [history, setHistory] = useState([
+    { id: 1, name: "Pricing Table Component", time: "10 mins ago" },
+    { id: 2, name: "Authentication Modal", time: "1 hour ago" },
+  ]);
+
+  const handleGenerate = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+
+    const newItem = {
+      id: Date.now(),
+      name: "Hero Section Component",
+      time: "Just now"
+    };
+    
+    setHistory([newItem, ...history]);
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col items-center p-6 relative overflow-hidden text-white font-sans">
@@ -26,18 +44,24 @@ export default function App() {
         </button>
       </nav>
 
-      <div className="relative z-10 w-full max-w-4xl">
-        {activePage === "home" ? <HomePage /> : <PricingPage />}
+      <div className="relative z-10 w-full max-w-5xl">
+        {activePage === "home" ? <HomePage onGenerate={handleGenerate} history={history} /> : <PricingPage />}
       </div>
 
+      {showToast && (
+        <div className="fixed bottom-8 right-8 bg-emerald-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-8 fade-in duration-300 z-50">
+          <Sparkles className="w-5 h-5" />
+          <span className="font-semibold text-lg">AI Component Generated!</span>
+        </div>
+      )}
     </div>
   );
 }
 
-
-function HomePage() {
+function HomePage({ onGenerate, history }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+      
       <div className="text-center mb-12">
         <h1 className="text-5xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
           Meet the Future of UI.
@@ -45,31 +69,73 @@ function HomePage() {
         <p className="text-slate-400 text-lg">Mastering pure visual architecture and glassmorphism.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition duration-300 group">
-          <Sparkles className="text-purple-400 w-10 h-10 mb-4 group-hover:scale-110 transition-transform" />
-          <h2 className="text-2xl font-bold mb-2">Lightning Fast Rendering</h2>
-          <p className="text-slate-400">Building UI that doesn't just work, but feels premium.</p>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition duration-300 group">
+              <Sparkles className="text-purple-400 w-10 h-10 mb-4 group-hover:scale-110 transition-transform" />
+              <h2 className="text-2xl font-bold mb-2">Lightning Fast Rendering</h2>
+              <p className="text-slate-400">Building UI that doesn't just work, but feels premium.</p>
+            </div>
 
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition duration-300 group">
-          <Zap className="text-blue-400 w-10 h-10 mb-4 group-hover:scale-110 transition-transform" />
-          <h2 className="text-xl font-bold mb-2">Performance</h2>
-          <p className="text-slate-400 text-sm">Zero lag. 60fps animations.</p>
-        </div>
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition duration-300 group">
+              <Zap className="text-blue-400 w-10 h-10 mb-4 group-hover:scale-110 transition-transform" />
+              <h2 className="text-xl font-bold mb-2">Performance</h2>
+              <p className="text-slate-400 text-sm">Zero lag. 60fps animations.</p>
+            </div>
 
-        <div className="md:col-span-3 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold mb-1">Bank-Grade Security</h2>
-            <p className="text-slate-400 text-sm">Because a pretty UI still needs a tough backend.</p>
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl flex flex-col justify-center">
+              <h2 className="text-xl font-bold mb-1">Bank-Grade Security</h2>
+              <Shield className="text-emerald-400 w-8 h-8 mt-2" />
+            </div>
           </div>
-          <Shield className="text-emerald-400 w-12 h-12" />
+
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-2 rounded-2xl shadow-2xl flex items-center gap-4 group hover:border-purple-500/50 hover:shadow-purple-500/20 transition-all duration-500">
+            <div className="bg-purple-500/20 p-3 rounded-xl group-hover:bg-purple-500/40 transition-colors">
+              <Sparkles className="text-purple-400 w-6 h-6 animate-pulse" />
+            </div>
+            <input 
+              type="text" 
+              placeholder="Ask the AI to generate a UI component..." 
+              className="bg-transparent w-full text-white placeholder-slate-500 outline-none text-lg"
+            />
+            <button 
+              onClick={onGenerate}
+              className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-xl font-semibold transition-colors flex items-center gap-2 whitespace-nowrap"
+            >
+              Generate <Zap className="w-4 h-4" />
+            </button>
+          </div>
+
         </div>
+
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl h-fit">
+          <div className="flex items-center gap-2 mb-6 border-b border-white/10 pb-4">
+            <Clock className="w-5 h-5 text-purple-400" />
+            <h2 className="text-xl font-bold">Recent Activity</h2>
+          </div>
+          
+          <div className="flex flex-col gap-4">
+            {history.map((item) => (
+              <div key={item.id} className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer animate-in fade-in slide-in-from-right-4">
+                <div className="bg-white/10 p-2 rounded-lg mt-1">
+                  <Code2 className="w-4 h-4 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-200">{item.name}</h3>
+                  <p className="text-sm text-slate-500">{item.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );
 }
-
 
 function PricingPage() {
   return (
@@ -78,7 +144,6 @@ function PricingPage() {
       <p className="text-slate-400 mb-10">Scale your component generation with zero limits.</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl text-left">
           <h2 className="text-2xl font-bold mb-2">Starter</h2>
           <div className="text-4xl font-extrabold mb-6">Free</div>
