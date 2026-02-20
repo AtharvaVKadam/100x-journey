@@ -2,11 +2,11 @@ import useTodos from "../hooks/useTodos"
 
 function App() {
 
-  const todos = useTodos();
+  const { todos, loading } = useTodos();
 
   return (
     <div>
-      { todos.map(todo => <Track todo = {todo} />)}
+      {loading ? ( <div>Loading...</div> ) :  todos.map(todo => <Track todo = {todo} />)}
     </div>
   )
 }
