@@ -1,0 +1,9 @@
+# Dependencies
+node_modules/
+
+# Compiled Output
+dist/
+build/
+
+# Environment Variables
+.env
