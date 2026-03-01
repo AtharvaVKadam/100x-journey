@@ -1,0 +1,9 @@
+# Dependencies
+node_modules/
+
+# Environment Variables (CRITICAL SECURITY)
+.env
+
+# Prisma generated files (optional, but good practice if you have a custom output dir)
+*.db
+*.db-journal
