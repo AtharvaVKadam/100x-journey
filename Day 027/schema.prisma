@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 🚀 Prisma 7 Syntax: No URLs allowed here anymore!
+datasource db {
+  provider = "postgresql"
+}
+
+// 👤 User Model
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String  @unique
+  posts Post[]  
+}
+
+// 📋 Post Model
+model Post {
+  id       Int    @id @default(autoincrement())
+  title    String
+  authorId Int
+  author   User   @relation(fields: [authorId], references: [id])
+}
