@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Turborepo Cache
+.turbo/
+
+# Build outputs (for when you add Next.js and Express later)
+.next/
+dist/
+build/
+
+# Environment Variables
+.env
+.env.*
