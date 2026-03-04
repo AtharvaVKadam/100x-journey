@@ -1,3 +1,12 @@
+import { Client } from 'pg';
+
+const client = new Client({
+    user: 'your_user',
+    password: 'your_password',
+    host: 'localhost',
+    port: 5432,
+    database: 'your_database',
+});
 
 async function manageUsers() {
     try {
