@@ -1,54 +1,47 @@
 import { Router, Request, Response } from 'express';
+import { Client } from 'pg';
 import { hashPassword, verifyPassword } from './authUtils'; 
 import { generateToken } from './jwtUtils';
 
 const router = Router();
 
-const usersDB: any[] = []; 
+const client = new Client({
+    user: 'your_user',
+    password: 'your_password',
+    host: 'localhost',
+    port: 5432,
+    database: 'your_database',
+});
+client.connect();
 
 router.post('/signup', async (req: Request, res: Response): Promise<void> => {
     try {
-        const { email, password } = req.body;
+        const { username, email, password } = req.body;
 
-        if (usersDB.find(u => u.email === email)) {
+        const checkUserQuery = `SELECT id FROM users WHERE email = $1;`;
+        const checkRes = await client.query(checkUserQuery, [email]);
+        
+        if (checkRes.rows.length > 0) {
             res.status(400).json({ error: "Email already in use." });
             return;
         }
 
         const hashedPassword = await hashPassword(password);
         
-        const newUser = { id: usersDB.length + 1, email, password: hashedPassword };
-        usersDB.push(newUser);
+        const insertQuery = `
+            INSERT INTO users (username, email, password_hash) 
+            VALUES ($1, $2, $3) 
+            RETURNING id, email;
+        `;
+        const newRes = await client.query(insertQuery, [username, email, hashedPassword]);
+        const newUser = newRes.rows[0];
 
         const token = generateToken(newUser.id, newUser.email);
-        
         res.status(201).json({ message: "Account created!", token });
+
     } catch (error) {
+        console.error("Database error:", error);
         res.status(500).json({ error: "Signup failed." });
-    }
-});
-
-router.post('/login', async (req: Request, res: Response): Promise<void> => {
-    try {
-        const { email, password } = req.body;
-
-        const user = usersDB.find(u => u.email === email);
-        if (!user) {
-            res.status(401).json({ error: "Invalid credentials." });
-            return;
-        }
-
-        const isMatch = await verifyPassword(password, user.password);
-        if (!isMatch) {
-            res.status(401).json({ error: "Invalid credentials." });
-            return;
-        }
-
-        const token = generateToken(user.id, user.email);
-        
-        res.status(200).json({ message: "Login successful!", token });
-    } catch (error) {
-        res.status(500).json({ error: "Login failed." });
     }
 });
 
