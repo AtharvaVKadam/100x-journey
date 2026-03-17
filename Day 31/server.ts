@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './authRoutes';
+import uploadRoutes from './uploadRoutes';
+
+app.use('/api/upload', uploadRoutes);
 
 const app = express();
 const PORT = 5000; 
