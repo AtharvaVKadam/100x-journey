@@ -5,6 +5,8 @@ import { useState, useRef } from 'react';
 export default function UploadZone() {
     const [isDragging, setIsDragging] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleDragOver = (e: React.DragEvent) => {
@@ -20,25 +22,60 @@ export default function UploadZone() {
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
         setIsDragging(false);
-        
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            const file = e.dataTransfer.files[0];
-            validateAndSetFile(file);
+            validateAndSetFile(e.dataTransfer.files[0]);
         }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            const file = e.target.files[0];
-            validateAndSetFile(file);
+            validateAndSetFile(e.target.files[0]);
         }
     };
 
     const validateAndSetFile = (file: File) => {
         if (file.type.startsWith('audio/') || file.type.startsWith('video/')) {
             setSelectedFile(file);
+            setUploadStatus('idle');
         } else {
             alert('Please upload an audio or video file (MP3, MP4, WAV).');
+        }
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile) return;
+
+        setIsUploading(true);
+        setUploadStatus('idle');
+
+        const formData = new FormData();
+
+        formData.append('audioFile', selectedFile);
+
+        try {
+            const token = localStorage.getItem('meetai_token');
+
+            const response = await fetch('http://localhost:5000/api/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+
+                },
+                body: formData,
+            });
+
+            if (!response.ok) throw new Error('Upload failed');
+
+            const data = await response.json();
+            console.log("Server response:", data);
+            
+            setUploadStatus('success');
+
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            setUploadStatus('error');
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -68,33 +105,47 @@ export default function UploadZone() {
                         <div className="text-4xl">📄</div>
                         <p className="text-sm font-medium text-gray-900">{selectedFile.name}</p>
                         <p className="text-xs text-gray-500">{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</p>
-                        <button 
-                            onClick={(e) => {
-                                e.stopPropagation(); 
-                                setSelectedFile(null);
-                            }}
-                            className="mt-4 px-4 py-2 text-sm text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
-                        >
-                            Remove File
-                        </button>
+                        
+                        {!isUploading && uploadStatus !== 'success' && (
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedFile(null);
+                                }}
+                                className="mt-4 px-4 py-2 text-sm text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                            >
+                                Remove File
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div className="space-y-2">
-                        <div className="text-4xl">☁️</div>
-                        <p className="text-sm font-medium text-gray-900">
-                            Click to upload or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-500">
-                            MP3, WAV, or MP4 (Max 50MB)
-                        </p>
+                        <div className="text-4xl"></div>
+                        <p className="text-sm font-medium text-gray-900">Click to upload or drag and drop</p>
+                        <p className="text-xs text-gray-500">MP3, WAV, or MP4 (Max 50MB)</p>
                     </div>
                 )}
             </div>
 
+            {/* 🚀 NEW: Dynamic Button States */}
             {selectedFile && (
-                <button className="mt-6 w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg shadow-sm transition-colors">
-                    Process with AI 🚀
+                <button 
+                    onClick={handleUpload}
+                    disabled={isUploading || uploadStatus === 'success'}
+                    className={`mt-6 w-full py-3 px-4 font-medium rounded-lg shadow-sm transition-colors ${
+                        uploadStatus === 'success' 
+                            ? 'bg-green-600 text-white cursor-default'
+                            : 'bg-slate-900 hover:bg-slate-800 text-white disabled:opacity-50'
+                    }`}
+                >
+                    {isUploading ? 'Uploading securely to server...' : 
+                     uploadStatus === 'success' ? ' Upload Complete!' : 
+                     'Process with AI '}
                 </button>
+            )}
+
+            {uploadStatus === 'error' && (
+                <p className="mt-4 text-sm text-red-600 text-center">Failed to upload. Make sure your backend server is running!</p>
             )}
         </div>
     );
