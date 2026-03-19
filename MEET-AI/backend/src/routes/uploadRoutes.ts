@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
-import { requireAuth, AuthRequest } from './authMiddleware'; 
+import { requireAuth, AuthRequest } from '../middlewares/authMiddleware'; 
 
 const router = Router();
 

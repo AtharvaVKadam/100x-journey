@@ -1,15 +1,16 @@
 import { Router, Response } from 'express';
 import { Client } from 'pg';
-import { requireAuth, AuthRequest } from './authMiddleware';
+import { requireAuth, AuthRequest } from '../middlewares/authMiddleware';
+import 'dotenv/config';
 
 const router = Router();
 
 const client = new Client({
-    user: 'your_user',
-    password: 'your_password',
-    host: 'localhost',
-    port: 5432,
-    database: 'your_database',
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    database: process.env.DB_NAME,
 });
 client.connect();
 

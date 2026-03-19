@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import authRoutes from './authRoutes';
-import uploadRoutes from './uploadRoutes';
-import userRoutes from './userRoutes';
+import authRoutes from './routes/authRoutes';
+import uploadRoutes from './routes/uploadRoutes';
+import userRoutes from './routes/userRoutes';
 
 const app = express();
 const PORT = 5000; 
