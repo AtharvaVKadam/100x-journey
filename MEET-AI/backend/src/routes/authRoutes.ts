@@ -46,4 +46,38 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
     }
 });
 
+router.post('/login', async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email, password } = req.body;
+
+        const userQuery = `SELECT id, email, password_hash FROM users WHERE email = $1;`;
+        const dbRes = await client.query(userQuery, [email]);
+        
+        if (dbRes.rows.length === 0) {
+            res.status(401).json({ error: "Invalid email or password." });
+            return;
+        }
+
+        const user = dbRes.rows[0];
+
+        const isPasswordValid = await verifyPassword(password, user.password_hash);
+        
+        if (!isPasswordValid) {
+            res.status(401).json({ error: "Invalid email or password." });
+            return;
+        }
+
+        const token = generateToken(user.id, user.email);
+        
+        res.status(200).json({ 
+            message: "Login successful!", 
+            token 
+        });
+
+    } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).json({ error: "Internal server error during login." });
+    }
+});
+
 export default router;
