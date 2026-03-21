@@ -7,6 +7,15 @@ import userRoutes from './routes/userRoutes';
 const app = express();
 const PORT = 5000; 
 
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'active',
+        service: 'MeetAI Core API',
+        environment: process.env.NODE_ENV || 'development',
+        timestamp: new Date().toISOString(),
+    });
+});
+
 app.use(cors()); 
 app.use(express.json()); 
 
