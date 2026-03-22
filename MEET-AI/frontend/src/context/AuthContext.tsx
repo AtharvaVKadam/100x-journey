@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const token = localStorage.getItem("meetai_token");
       if (token) {
         try {
-          const userData = await apiClient("/user/me");
+          const userData = (await apiClient("/user/me")) as unknown as User;
           setUser(userData);
         } catch (error) {
           console.error("Session invalid. Logging out.");
