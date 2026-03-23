@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "navigation"; 
+import { useRouter } from "next/navigation";
 import { useAuth } from "../src/context/AuthContext";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
