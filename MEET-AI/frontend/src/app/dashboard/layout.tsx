@@ -1,5 +1,5 @@
 import ProtectedRoute from "../../../components/ProtectedRoute";
-import UserMenu from "../../components/UserMenu"; 
+import UserMenu from "../../../components/UserMenu"; 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
