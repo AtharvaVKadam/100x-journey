@@ -1,44 +1,39 @@
-'use client';
+import ProtectedRoute from "../../../components/ProtectedRoute";
+import UserMenu from "../../components/UserMenu"; 
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <ProtectedRoute>
+      <div className="flex h-screen bg-gray-50 font-sans">
 
-export default function DashboardLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    const router = useRouter();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+        <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+          <div className="h-16 flex items-center px-6 border-b border-gray-200 font-bold text-2xl text-indigo-600 tracking-tight">
+            MeetAI
+          </div>
+          <nav className="flex-1 p-4 space-y-2 mt-4">
+            <a href="/dashboard" className="block px-4 py-2 text-indigo-700 bg-indigo-50 rounded-lg font-medium transition-colors">
+              Overview
+            </a>
+            <a href="/dashboard/meetings" className="block px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors">
+              Meeting History
+            </a>
+            <a href="/dashboard/agents" className="block px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors">
+              AI Agents
+            </a>
+          </nav>
+        </aside>
 
-    useEffect(() => {
-        const token = localStorage.getItem('meetai_token');
+        <main className="flex-1 flex flex-col">
+          <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-end px-8">
+            <UserMenu />
+          </header>
 
-        if (!token) {
-            console.warn("Unauthorized access attempt. Redirecting to login...");
-            router.push('/login');
-        } else {
-            setIsAuthenticated(true);
-        }
-    }, [router]);
+          <div className="p-8 flex-1 overflow-y-auto">
+            {children}
+          </div>
+        </main>
 
-    if (!isAuthenticated) {
-        return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-500">Authenticating session...</div>;
-    }
-
-    return (
-        <div className="min-h-screen bg-gray-100 flex">
-            <aside className="w-64 bg-slate-900 text-white p-6 hidden md:block">
-                <h2 className="text-2xl font-bold mb-8">MeetAI</h2>
-                <nav className="space-y-4 text-slate-300">
-                    <p className="hover:text-white cursor-pointer transition-colors">📊 Overview</p>
-                    <p className="hover:text-white cursor-pointer transition-colors">📝 Transcripts</p>
-                    <p className="hover:text-white cursor-pointer transition-colors">⚙️ Settings</p>
-                </nav>
-            </aside>
-            <main className="flex-1 p-8">
-                {children}
-            </main>
-        </div>
-    );
+      </div>
+    </ProtectedRoute>
+  );
 }
