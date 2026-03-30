@@ -1,28 +1,39 @@
-import express from 'express';
-import cors from 'cors';
-import authRoutes from './routes/authRoutes';
-import uploadRoutes from './routes/uploadRoutes';
-import userRoutes from './routes/userRoutes';
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
+import cors from "cors";
+import "dotenv/config";
 
 const app = express();
-const PORT = 5000; 
+app.use(cors());
+app.use(express.json());
 
-app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'active',
-        service: 'MeetAI Core API',
-        environment: process.env.NODE_ENV || 'development',
-        timestamp: new Date().toISOString(),
-    });
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
 });
 
-app.use(cors()); 
-app.use(express.json()); 
+io.on("connection", (socket) => {
+  console.log(`⚡ Client connected: ${socket.id}`);
 
-app.use('/api', authRoutes); 
-app.use('/api/upload', uploadRoutes);
-app.use('/api/users', userRoutes);
+  socket.on("join-room", (roomId: string, userId: number) => {
+    socket.join(roomId);
+    console.log(`👤 User ${userId} joined room: ${roomId}`);
 
-app.listen(PORT, () => {
-    console.log(`🚀 MeetAI Backend running securely on http://localhost:${PORT}`);
+    socket.to(roomId).emit("user-connected", userId);
+
+    socket.on("disconnect", () => {
+      console.log(`❌ User ${userId} disconnected from room: ${roomId}`);
+      socket.to(roomId).emit("user-disconnected", userId);
+    });
+  });
+});
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`🚀 MeetAI Backend running on http://localhost:${PORT}`);
 });
