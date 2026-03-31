@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
 import { useLocalStream } from "../../../../hooks/useLOcalStream";
+import { useSocket } from "../../../../hooks/useSocket";
+import { useWebRTC } from "../../../../hooks/useWebRtc";
 import VideoPlayer from "../../../../components/VideoPlayer";
 
 export default function MeetingRoom() {
@@ -19,6 +21,8 @@ export default function MeetingRoom() {
     toggleAudio,
     toggleVideo,
   } = useLocalStream();
+  const socket = useSocket(roomId as string, user?.id);
+  const { remoteStream } = useWebRTC(socket, localStream); // NEW HOOK
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -43,43 +47,48 @@ export default function MeetingRoom() {
       <div className="flex justify-between items-center bg-gray-800 p-4 rounded-xl mb-4 shadow-lg border border-gray-700">
         <div>
           <h1 className="text-xl font-bold tracking-tight">MeetAI Session</h1>
-          <p className="text-sm text-gray-400">Room ID: {roomId}</p>
         </div>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleCopyInvite}
-            className="text-sm bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md font-medium transition-colors"
-          >
-            {copied ? "✓ Copied to clipboard" : "🔗 Copy Invite Link"}
-          </button>
-          <div className="bg-red-500/10 text-red-500 px-3 py-1 rounded-full text-sm font-medium animate-pulse border border-red-500/20">
-            Recording Active
-          </div>
-        </div>
+        <button
+          onClick={handleCopyInvite}
+          className="text-sm bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md font-medium transition-colors"
+        >
+          {copied ? "✓ Copied" : "🔗 Copy Invite Link"}
+        </button>
       </div>
 
-      <div className="flex-1 bg-black rounded-xl border border-gray-700 overflow-hidden flex items-center justify-center p-4">
-        <div className="w-full max-w-3xl aspect-video">
+      <div
+        className={`flex-1 grid gap-4 p-4 rounded-xl border border-gray-700 bg-black ${remoteStream ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"} items-center justify-center`}
+      >
+        <div className="w-full max-w-4xl mx-auto aspect-video relative">
           <VideoPlayer stream={localStream} isMuted={true} />
         </div>
+
+        {remoteStream && (
+          <div className="w-full max-w-4xl mx-auto aspect-video relative">
+            <VideoPlayer stream={remoteStream} isMuted={false} />
+            <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-md text-sm text-white font-medium">
+              Remote Peer
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="h-20 bg-gray-800 mt-4 rounded-xl shadow-lg border border-gray-700 flex items-center justify-center gap-6">
         <button
           onClick={toggleAudio}
-          className={`p-4 rounded-full transition-colors ${isAudioMuted ? "bg-red-500 hover:bg-red-600" : "bg-gray-700 hover:bg-gray-600"}`}
+          className={`p-4 rounded-full transition-colors ${isAudioMuted ? "bg-red-500" : "bg-gray-700"}`}
         >
           {isAudioMuted ? "🔇" : "🎙️"}
         </button>
         <button
           onClick={toggleVideo}
-          className={`p-4 rounded-full transition-colors ${isVideoOff ? "bg-red-500 hover:bg-red-600" : "bg-gray-700 hover:bg-gray-600"}`}
+          className={`p-4 rounded-full transition-colors ${isVideoOff ? "bg-red-500" : "bg-gray-700"}`}
         >
           {isVideoOff ? "🚫📷" : "📷"}
         </button>
         <button
           onClick={() => router.push("/dashboard")}
-          className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-full font-medium transition-colors shadow-lg"
+          className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-full font-medium"
         >
           Leave Call
         </button>
