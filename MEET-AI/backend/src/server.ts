@@ -26,6 +26,12 @@ io.on("connection", (socket) => {
 
     socket.to(roomId).emit("user-connected", userId);
 
+    socket.on("offer", (offer) => socket.to(roomId).emit("offer", offer));
+    socket.on("answer", (answer) => socket.to(roomId).emit("answer", answer));
+    socket.on("ice-candidate", (candidate) =>
+      socket.to(roomId).emit("ice-candidate", candidate),
+    );
+
     socket.on("disconnect", () => {
       console.log(`❌ User ${userId} disconnected from room: ${roomId}`);
       socket.to(roomId).emit("user-disconnected", userId);
