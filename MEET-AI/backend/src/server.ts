@@ -28,6 +28,9 @@ io.on("connection", (socket) => {
 
     socket.on("offer", (offer) => socket.to(roomId).emit("offer", offer));
     socket.on("answer", (answer) => socket.to(roomId).emit("answer", answer));
+    socket.on("send-message", (messageData) =>
+      socket.to(roomId).emit("receive-message", messageData),
+    );
     socket.on("ice-candidate", (candidate) =>
       socket.to(roomId).emit("ice-candidate", candidate),
     );
