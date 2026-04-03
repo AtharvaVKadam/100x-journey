@@ -7,7 +7,7 @@ import { useLocalStream } from "../../../hooks/useLocalStream";
 import { useSocket } from "../../../hooks/useSocket";
 import { useWebRTC } from "../../../hooks/useWebRTC";
 import { useChat } from "../../../hooks/useChat";
-import { useCaptions } from "../../../hooks/useCaptions"; // NEW IMPORT
+import { useCaptions } from "../../../hooks/useCaptions"; 
 import VideoPlayer from "../../../components/VideoPlayer";
 
 export default function MeetingRoom() {
