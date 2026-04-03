@@ -3,17 +3,19 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
-import { useLocalStream } from "../../../hooks/useLocalStream";
-import { useSocket } from "../../../hooks/useSocket";
-import { useWebRTC } from "../../../hooks/useWebRTC";
-import { useChat } from "../../../hooks/useChat";
-import { useCaptions } from "../../../hooks/useCaptions"; 
-import VideoPlayer from "../../../components/VideoPlayer";
+import { useLocalStream } from "../../../../hooks/useLOcalStream";
+import { useSocket } from "../../../../hooks/useSocket";
+import { useWebRTC } from "../../../../hooks/useWebRtc";
+import { useChat } from "../../../../hooks/useChat";
+import VideoPlayer from "../../../../components/VideoPlayer";
+import PreJoinLobby from "../../../../components/PreJoinLobby";
 
 export default function MeetingRoom() {
   const { roomId } = useParams();
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
+
+  const [hasJoined, setHasJoined] = useState(false);
 
   const {
     localStream,
@@ -25,22 +27,15 @@ export default function MeetingRoom() {
   } = useLocalStream();
   const socket = useSocket(roomId as string, user?.id);
   const { remoteStream } = useWebRTC(socket, localStream);
+
   const { messages, sendMessage } = useChat(socket, roomId as string, user);
-
-  const userName = user?.username || "User";
-  const { localCaption, remoteCaption } = useCaptions(
-    socket,
-    isAudioMuted,
-    userName,
-  );
-
-  const [activeTab, setActiveTab] = useState<"chat" | "ai">("chat");
   const [chatInput, setChatInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
   useEffect(() => {
     if (!isAuthLoading && !user) router.push("/login");
   }, [user, isAuthLoading, router]);
@@ -58,8 +53,23 @@ export default function MeetingRoom() {
       </div>
     );
 
+  if (!hasJoined) {
+    return (
+      <PreJoinLobby
+        roomId={roomId as string}
+        stream={localStream}
+        isAudioMuted={isAudioMuted}
+        isVideoOff={isVideoOff}
+        toggleAudio={toggleAudio}
+        toggleVideo={toggleVideo}
+        onJoin={() => setHasJoined(true)}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white p-4">
+      {/* Top Bar */}
       <div className="flex justify-between items-center bg-gray-800 p-4 rounded-xl mb-4 border border-gray-700">
         <h1 className="text-xl font-bold tracking-tight">MeetAI Session</h1>
         <div className="text-sm text-gray-400">ID: {roomId}</div>
@@ -71,98 +81,55 @@ export default function MeetingRoom() {
         >
           <div className="w-full max-w-4xl mx-auto aspect-video relative">
             <VideoPlayer stream={localStream} isMuted={true} />
-            {localCaption && (
-              <div className="absolute bottom-10 left-0 right-0 text-center pointer-events-none">
-                <span className="bg-black/70 text-white px-4 py-2 rounded-lg text-sm md:text-base font-medium backdrop-blur-sm shadow-lg">
-                  {localCaption}
-                </span>
-              </div>
-            )}
           </div>
-
           {remoteStream && (
             <div className="w-full max-w-4xl mx-auto aspect-video relative">
               <VideoPlayer stream={remoteStream} isMuted={false} />
-              {remoteCaption && (
-                <div className="absolute bottom-10 left-0 right-0 text-center pointer-events-none">
-                  <span className="bg-black/70 text-white px-4 py-2 rounded-lg text-sm md:text-base font-medium backdrop-blur-sm shadow-lg">
-                    {remoteCaption}
-                  </span>
-                </div>
-              )}
             </div>
           )}
         </div>
 
         <div className="w-80 bg-gray-800 rounded-xl border border-gray-700 flex flex-col overflow-hidden">
-          {/* Tab Navigation */}
-          <div className="flex border-b border-gray-700">
-            <button
-              onClick={() => setActiveTab("chat")}
-              className={`flex-1 p-3 text-sm font-semibold transition-colors ${activeTab === "chat" ? "bg-gray-700 text-white" : "text-gray-400 hover:text-white"}`}
-            >
-              Team Chat
-            </button>
-            <button
-              onClick={() => setActiveTab("ai")}
-              className={`flex-1 p-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${activeTab === "ai" ? "bg-indigo-600 text-white" : "text-gray-400 hover:text-white"}`}
-            >
-              <span className="text-xs">✨</span> AI Agent
-            </button>
+          <div className="p-4 border-b border-gray-700 font-semibold">
+            Team Chat
           </div>
-
-          {activeTab === "chat" ? (
-            <>
-              <div className="flex-1 p-4 overflow-y-auto space-y-4">
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex flex-col ${msg.senderId === user?.id ? "items-end" : "items-start"}`}
-                  >
-                    <span className="text-xs text-gray-400 mb-1">
-                      {msg.senderName} • {msg.timestamp}
-                    </span>
-                    <div
-                      className={`px-4 py-2 rounded-lg text-sm max-w-[90%] break-words ${msg.senderId === user?.id ? "bg-indigo-600" : "bg-gray-700"}`}
-                    >
-                      {msg.text}
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-              <form
-                onSubmit={handleSend}
-                className="p-3 border-t border-gray-700 bg-gray-800 flex gap-2"
+          <div className="flex-1 p-4 overflow-y-auto space-y-4">
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex flex-col ${msg.senderId === user?.id ? "items-end" : "items-start"}`}
               >
-                <input
-                  type="text"
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Message..."
-                  className="flex-1 bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
-                />
-                <button
-                  type="submit"
-                  disabled={!chatInput.trim()}
-                  className="bg-indigo-600 px-3 py-2 rounded-md text-sm font-medium disabled:opacity-50"
+                <span className="text-xs text-gray-400 mb-1">
+                  {msg.senderName} • {msg.timestamp}
+                </span>
+                <div
+                  className={`px-4 py-2 rounded-lg text-sm max-w-[90%] break-words ${msg.senderId === user?.id ? "bg-indigo-600" : "bg-gray-700"}`}
                 >
-                  Send
-                </button>
-              </form>
-            </>
-          ) : (
-            <div className="flex-1 p-6 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mb-4 animate-pulse">
-                ✨
+                  {msg.text}
+                </div>
               </div>
-              <h3 className="font-semibold text-lg mb-2">MeetAI Assistant</h3>
-              <p className="text-sm text-gray-400">
-                Listening to the conversation... Meeting summaries and action
-                items will appear here soon.
-              </p>
-            </div>
-          )}
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          <form
+            onSubmit={handleSend}
+            className="p-3 border-t border-gray-700 bg-gray-800 flex gap-2"
+          >
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder="Message..."
+              className="flex-1 bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+            />
+            <button
+              type="submit"
+              disabled={!chatInput.trim()}
+              className="bg-indigo-600 px-3 py-2 rounded-md text-sm font-medium disabled:opacity-50"
+            >
+              Send
+            </button>
+          </form>
         </div>
       </div>
 
